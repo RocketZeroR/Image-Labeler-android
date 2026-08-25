@@ -22,9 +22,21 @@ jobs:
 
     - name: Fix JCenter Shutdown Issue
       run: |
-        sed -i "s/jcenter()/maven { url 'https:\/\/maven.aliyun.com\/repository\/jcenter' }/g" build.gradle || true
-        sed -i "s/jcenter()/maven { url 'https:\/\/maven.aliyun.com\/repository\/jcenter' }/g" app/build.gradle || true
-        sed -i "s/jcenter()/maven { url 'https:\/\/maven.aliyun.com\/repository\/jcenter' }/g" settings.gradle || true
+        python -c '
+        import os
+        for root, dirs, files in os.walk("."):
+            for file in files:
+                if file.endswith(".gradle"):
+                    path = os.path.join(root, file)
+                    with open(path, "r") as f:
+                        c = f.read()
+                    # সঠিকভাবে ব্লক ও সাধারণ jcenter রিপ্লেস করা হচ্ছে
+                    c = c.replace("jcenter() {", "maven { url \"https://maven.aliyun.com/repository/jcenter\" ")
+                    c = c.replace("jcenter(){", "maven { url \"https://maven.aliyun.com/repository/jcenter\" ")
+                    c = c.replace("jcenter()", "maven { url \"https://maven.aliyun.com/repository/jcenter\" }")
+                    with open(path, "w") as f:
+                        f.write(c)
+        '
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
