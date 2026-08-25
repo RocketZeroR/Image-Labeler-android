@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches: [ "master", "main" ]
-  workflow_dispatch: # এটি ম্যানুয়ালি বিল্ড করার অপশন দেবে
+  workflow_dispatch:
 
 jobs:
   build:
@@ -19,6 +19,12 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: gradle
+
+    - name: Fix JCenter Shutdown Issue
+      run: |
+        sed -i "s/jcenter()/maven { url 'https:\/\/maven.aliyun.com\/repository\/jcenter' }/g" build.gradle || true
+        sed -i "s/jcenter()/maven { url 'https:\/\/maven.aliyun.com\/repository\/jcenter' }/g" app/build.gradle || true
+        sed -i "s/jcenter()/maven { url 'https:\/\/maven.aliyun.com\/repository\/jcenter' }/g" settings.gradle || true
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
